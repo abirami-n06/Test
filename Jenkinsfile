@@ -13,4 +13,10 @@ pipeline {
         }
         stage('Run Container') {
             steps {
-                sh 'docker stop my-webs
+                sh 'docker stop my-website || true'
+                sh 'docker rm my-website || true'
+                sh 'docker run -d --name my-website -p 80:80 my-website:latest'
+            }
+        }
+    }
+}
