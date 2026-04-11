@@ -12,21 +12,21 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-website:latest .'
+                sh 'docker build -t my-website:${BUILD_NUMBER} .'
             }
         }
         stage('Push to ECR') {
             steps {
                 sh 'aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ECR_REPO}'
-                sh 'docker tag my-website:latest ${ECR_REPO}:latest'
-                sh 'docker push ${ECR_REPO}:latest'
+                sh 'docker tag my-website:${BUILD_NUMBER} ${ECR_REPO}:${BUILD_NUMBER}'
+                sh 'docker push ${ECR_REPO}:${BUILD_NUMBER}'
             }
         }
         stage('Run Container') {
             steps {
                 sh 'docker stop my-website || true'
                 sh 'docker rm my-website || true'
-                sh 'docker run -d --name my-website --restart always -p 80:80 ${ECR_REPO}:latest'
+                sh 'docker run -d --name my-website --restart always -p 80:80 ${ECR_REPO}:${BUILD_NUMBER}'
             }
         }
     }
